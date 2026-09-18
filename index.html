@@ -1,0 +1,51 @@
+<h1>Student Information System</h1>
+
+<input id="studentNumber" placeholder="Student Number">
+<input id="fullName" placeholder="Full Name">
+<input id="course" placeholder="Course">
+<input id="email" placeholder="Email">
+
+<button onclick="addStudent()">Save Student</button>
+
+<div id="studentList"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const supabaseUrl = 'https://gydiedapaleiunkkbsii.supabase.co';
+  const supabaseKey = 'sb_publishable_QtX_BfLs-zqfr-Y8kP5yYA_e-bWaCrP';
+  const db = supabase.createClient(supabaseUrl, supabaseKey);
+
+  async function addStudent() {
+    const record = {
+        student_number: studentNumber.value,
+        full_name: fullName.value,
+        course: course.value,
+        email: email.value
+    };
+  
+    const { error } = await db.from('students').insert(record);
+    if (error) {
+       alert(error.message);
+       return;
+    } 
+
+    alert("Student saved");
+    loadStudents();
+    }
+
+    async function loadStudents() {
+        const { data, error } = await db.from('students').select('*').order('id', { ascending: false });
+
+        if (error) {
+            studentList.innerHTML = error.message;
+            return;
+        }
+
+        studentList.innerHTML = data.map(s => 
+            `<p><b>${s.full_name}</b><br>
+            ${s.student_number} | ${s.course}</p>`
+        ).join("");
+    }
+
+    loadStudents();
+</script>
